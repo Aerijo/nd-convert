@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/Aerijo/nd-convert"
   },
   "keywords": [],
   "license": "MIT",
-  "name": "",
+  "name": "nd-convert",
   "description": "Converts between different Fitch style natural deduction file types",
   "dependencies": {
     "tree-sitter": "latest",
