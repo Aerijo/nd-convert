@@ -1,0 +1,17 @@
+{
+  "author": "Benjamin Gray",
+  "main": "./lib/main.js",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [],
+  "license": "MIT",
+  "name": "",
+  "description": "Converts between different Fitch style natural deduction file types",
+  "dependencies": {
+    "tree-sitter": "latest",
+    "tree-sitter-nd": "latest"
+  }
+}
