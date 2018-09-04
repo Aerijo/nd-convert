@@ -13,5 +13,12 @@
   "dependencies": {
     "tree-sitter": "latest",
     "tree-sitter-nd": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^10.9.4",
+    "typescript": "^3.0.3"
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }
