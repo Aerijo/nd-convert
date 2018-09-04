@@ -1,6 +1,6 @@
 {
   "author": "Benjamin Gray",
-  "main": "./lib/main.js",
+  "main": "./dist/main.js",
   "version": "0.0.0",
   "repository": {
     "type": "git",

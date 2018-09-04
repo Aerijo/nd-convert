@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as process from 'process';
 
 import * as Parser from 'tree-sitter';
 
@@ -8,15 +7,17 @@ const LangND = require("tree-sitter-nd");
 
 function getAbsolutePath (filePath: string): string {
   if (filePath.length > 0 && filePath[0] === "~") {
-    const home: string | undefined = process.env.HOME;
+    const home = process.env.HOME;
     if (typeof home !== "undefined") {
       filePath = path.join(home, filePath.slice(1));
     }
   }
 
-  const absPath = path.resolve(process.cwd(), filePath);
+  return path.resolve(process.cwd(), filePath);
+}
 
-  return absPath;
+function getText (filePath: string): string {
+  return fs.readFileSync(filePath, { encoding: "utf-8" });
 }
 
 function getParseTree (text: string): Parser.Tree {
@@ -30,3 +31,8 @@ function getParseTree (text: string): Parser.Tree {
 
 
 const inputPath: string = process.argv[2];
+const absPath = getAbsolutePath(inputPath);
+const text = getText(absPath);
+const tree = getParseTree(text);
+
+console.log(tree.rootNode.toString());
