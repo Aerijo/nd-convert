@@ -167,7 +167,6 @@ function addGuard (lines: Line[], node: SyntaxNode): void {
     throw new Error("Expected opening for guard!");
   }
 
-  debugger;
   let guards: string[] = [];
   for (let child of node.namedChildren) {
     if (child.type === "variable") {
