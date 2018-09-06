@@ -19,6 +19,6 @@
     "typescript": "^3.0.3"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc --strictNullChecks --inlineSourceMap"
   }
 }
