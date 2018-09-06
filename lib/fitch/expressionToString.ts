@@ -1,5 +1,5 @@
 import { SyntaxNode } from 'tree-sitter';
-import { nextChild, possibleNextChild, getTargetChild } from './util';
+import { nextChild, possibleNextChild, getTargetChild } from '../util';
 
 const Fitch = {
   true: "T",
@@ -23,7 +23,7 @@ const Fitch = {
 }
 
 
-export default function getExpressionString (node: SyntaxNode): string {
+export function getExpressionString (node: SyntaxNode): string {
   if (node.type !== "expression") {
     throw new Error("Expected an expression!");
   }
@@ -65,8 +65,8 @@ function termToString (node: SyntaxNode): string {
   }
 }
 
-function variableToString (node: SyntaxNode): string {
-  return node.text;
+export function variableToString (node: SyntaxNode): string {
+  return node.text.length <= 1 ? node.text : "\\mathit{" + node.text + "}";
 }
 
 
@@ -75,7 +75,7 @@ function functionToString (node: SyntaxNode): string {
   let body = "";
 
   const nameChild = nextChild(node);
-  name = nameChild.node.text;
+  name = variableToString(nameChild.node);
 
   const bodyChild = possibleNextChild(node, nameChild.ind+1);
   if (bodyChild !== null) {

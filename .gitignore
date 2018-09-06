@@ -1,2 +1,9 @@
 node_modules
 dist
+
+examples/tex/*.aux
+examples/tex/*.pdf
+examples/tex/*.fdb*
+examples/tex/*.fls
+examples/tex/*.log
+examples/tex/*.sy*

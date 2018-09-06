@@ -1,0 +1,35 @@
+\documentclass{article}
+
+\usepackage{mathtools}
+\usepackage{fitch}
+
+\begin{document}
+\[
+\begin{nd}
+    \hypo {1} { \lnot (\exists y . Q(y) \land T(y)) }
+    \open[a]
+        \open
+            \hypo {2} { Q(a) \land T(a) }
+            \have {3} { \exists y . Q(y) \land T(y) }
+            \have {4} { F }
+        \close
+        \have {5} { \lnot (Q(a) \land T(a)) }
+    \close
+    \have {6} { \forall y . \lnot (Q(y) \land T(y)) }
+    \open[a]
+        \open
+            \hypo {7} { Q(a) }
+            \open
+                \hypo {8} { T(a) }
+                \have {9} { Q(a) \land T(a) }
+                \have {10} { \lnot (Q(a) \land T(a)) }
+                \have {11} { F }
+            \close
+            \have {12} { \lnot T(a) }
+        \close
+        \have {13} { Q(a) \rightarrow \lnot T(a) }
+    \close
+    \have {14} { \forall y . Q(y) \rightarrow \lnot T(y) }
+\end{nd}
+\]
+\end{document}
