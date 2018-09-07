@@ -1,5 +1,5 @@
-import { SyntaxNode } from 'tree-sitter';
-import { nextChild, possibleNextChild, getTargetChild } from '../util';
+import * as e from '../types/expression';
+import { Expression, ExpType } from '../types/expression';
 
 const Fitch = {
   true: "T",
@@ -22,170 +22,117 @@ const Fitch = {
   }
 }
 
-
-export function getExpressionString (node: SyntaxNode): string {
-  if (node.type !== "expression") {
-    throw new Error("Expected an expression!");
-  }
-
-  if (node.hasError()) {
-    throw new Error("Error in expression!");
-  }
-
-  let childNode = nextChild(node).node;
-  return termToString(childNode);
-}
-
-
-
-function termToString (node: SyntaxNode): string {
+export function expressionToString (node: Expression): string {
   switch (node.type) {
-    case "variable":
-      return variableToString(node);
-    case "function":
-      return functionToString(node);
-    case "true":
-      return Fitch.true;
-    case "false":
-      return Fitch.false;
-    case "not":
-      return notToString(node);
-    case "and":
-    case "or":
-      return andOrToString(node);
-    case "implies":
-      return impliesToString(node);
-    case "iff":
-      return impliesToString(node);
-    case "forall":
-    case "exists":
-      return allExistsToString(node);
-    default:
-      throw new Error("Unexpected node " + node.type);
+    case ExpType.Var:     return varToString(node);
+    case ExpType.Func:    return funcToString(node);
+    case ExpType.True:    return Fitch.true;
+    case ExpType.False:   return Fitch.false;
+    case ExpType.Not:     return notToString(node);
+    case ExpType.And:     return andToString(node);
+    case ExpType.Or:      return orToString(node);
+    case ExpType.Implies: return impliesToString(node);
+    case ExpType.Iff:     return iffToString(node);
+    case ExpType.Forall:  return forallToString(node)
+    case ExpType.Exists:  return existsToString(node);
   }
 }
 
-export function variableToString (node: SyntaxNode): string {
-  return node.text.length <= 1 ? node.text : "\\mathit{" + node.text + "}";
+export function varToString (node: e.Var): string {
+  return node.name.length <= 1 ? node.name : "\\mathit{" + node.name + "}";
 }
 
+function funcToString (node: e.Func): string {
+  let name = varToString(node.name);
 
-function functionToString (node: SyntaxNode): string {
-  let name = "";
   let body = "";
-
-  const nameChild = nextChild(node);
-  name = variableToString(nameChild.node);
-
-  const bodyChild = possibleNextChild(node, nameChild.ind+1);
-  if (bodyChild !== null) {
-    body = Fitch.left_group + termToString(bodyChild.node) + Fitch.right_group;
+  if (node.body !== null) {
+    body = Fitch.left_group + expressionToString(node.body) + Fitch.right_group;
   }
 
   return name + body;
 }
 
-function notToString (node: SyntaxNode): string {
-  let body = "";
-
-  const bodyChild = nextChild(node);
-  body = subtermToString(bodyChild.node);
-
-  return Fitch.not + " " + body;
+function notToString (node: e.Not): string {
+  return Fitch.not + " " + subExpToString(node.body);
 }
 
-function andOrToString (node: SyntaxNode): string {
-  if (node.type !== "and" && node.type !== "or") { throw new Error(); } // TODO: Replace SyntaxNode with proper types
-  let operator = Fitch[node.type];
+function andToString (node: e.And): string {
+  return subExpToString(node.left) + " " + Fitch.and + " " + subExpToString(node.right);
+}
+
+function orToString (node: e.Or): string {
+  return subExpToString(node.left) + " " + Fitch.or + " " + subExpToString(node.right);
+}
+
+function impliesToString (node: e.Implies): string {
   let left = "";
   let right = "";
 
-  const leftChild = nextChild(node);
-  const rightChild = nextChild(node, leftChild.ind+1);
-
-  left = subtermToString(leftChild.node);
-  right = subtermToString(rightChild.node);
-
-  return left + " " + operator + " " + right;
-}
-
-function impliesToString (node: SyntaxNode): string {
-  let left = "";
-  let right = "";
-
-  const leftChild = nextChild(node);
-  const rightChild = nextChild(node, leftChild.ind+1);
-
-  if (leftChild.node.type === "and" || leftChild.node.type === "or") {
-    left = termToString(leftChild.node);
+  if (node.left.type === ExpType.And || node.left.type === ExpType.Or) {
+    left = expressionToString(node.left);
   } else {
-    left = subtermToString(leftChild.node);
+    left = subExpToString(node.left);
   }
 
-  if (rightChild.node.type === "and" || rightChild.node.type === "or") {
-    right = termToString(rightChild.node);
+  if (node.right.type === ExpType.And || node.right.type === ExpType.Or) {
+    right = expressionToString(node.right);
   } else {
-    right = subtermToString(rightChild.node);
+    right = subExpToString(node.right);
   }
 
   return left + " " + Fitch.implies + " " + right;
 }
 
-function iffToString (node: SyntaxNode): string {
+function iffToString (node: e.Iff): string {
   let left = "";
   let right = "";
 
-  const leftChild = nextChild(node);
-  const rightChild = nextChild(node, leftChild.ind+1);
-
-  if (leftChild.node.type === "and" || leftChild.node.type === "or") {
-    left = termToString(leftChild.node);
+  if (node.left.type === ExpType.And || node.left.type === ExpType.Or) {
+    left = expressionToString(node.left);
   } else {
-    left = subtermToString(leftChild.node);
+    left = subExpToString(node.left);
   }
 
-  if (rightChild.node.type === "and" || rightChild.node.type === "or") {
-    right = termToString(rightChild.node);
+  if (node.right.type === ExpType.And || node.right.type === ExpType.Or) {
+    right = expressionToString(node.right);
   } else {
-    right = subtermToString(rightChild.node);
+    right = subExpToString(node.right);
   }
 
   return left + " " + Fitch.iff + " " + right;
 }
 
-function allExistsToString (node: SyntaxNode): string {
-  if (node.type !== "forall" && node.type !== "exists") { throw new Error(); }
-  let operator = Fitch[node.type];
-  let name = "";
-  let body = "";
+function forallToString (node: e.Forall): string {
+  let varName = varToString(node.variable);
+  let body = expressionToString(node.body);
+  return Fitch.forall + " " + varName + " " + Fitch.universal_group + " " + body;
+}
 
-  const nameChild = nextChild(node);
-  const bodyChild = nextChild(node, nameChild.ind+1);
-
-  name = subtermToString(nameChild.node);
-  body = termToString(bodyChild.node);
-
-  return operator + " " + name + " " + Fitch.universal_group + " " + body;
+function existsToString (node: e.Exists): string {
+  let varName = varToString(node.variable);
+  let body = expressionToString(node.body);
+  return Fitch.exists + " " + varName + " " + Fitch.universal_group + " " + body;
 }
 
 
-function isAtomicTerm (node: SyntaxNode): boolean {
+function isAtomicTerm (node: Expression): boolean {
   switch (node.type) {
-    case "variable":
-    case "function":
-    case "true":
-    case "false":
-    case "not":
+    case ExpType.Var:
+    case ExpType.Func:
+    case ExpType.True:
+    case ExpType.False:
+    case ExpType.Not:
       return true;
     default:
       return false;
   }
 }
 
-function subtermToString (node: SyntaxNode): string {
+function subExpToString (node: Expression): string {
   if (isAtomicTerm(node)) {
-    return termToString(node);
+    return expressionToString(node);
   } else {
-    return Fitch.left_group + termToString(node) + Fitch.right_group;
+    return Fitch.left_group + expressionToString(node) + Fitch.right_group;
   }
 }

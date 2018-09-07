@@ -1,7 +1,7 @@
 import { SyntaxNode } from 'tree-sitter';
 import { nextChild, possibleNextChild, getTargetChild } from '../util';
 
-import { getExpressionString, variableToString } from './expressionToString';
+import { expressionToString } from './expressionToString';
 
 const Fitch = {
   environment: {
@@ -17,7 +17,7 @@ const Fitch = {
     close: "\\close"
   },
   hypo: "\\hypo",
-  have: "\\have"
+  have: "\\have"   
 }
 
 interface Options {

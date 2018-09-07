@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import * as Parser from 'tree-sitter';
 
-// import { getExpressionString } from './fitch/expressionToString';
+import { getExpression } from './fitch/syntaxTreeToExpression';
 import { getProofString } from './fitch/proofToString';
 
 const LangND = require("tree-sitter-nd");
@@ -42,13 +42,21 @@ function main (): void {
   const text = getText(absPath);
   const tree = getParseTree(text);
 
-  console.log(tree.rootNode.toString());
+  // console.log(tree.rootNode.toString());
   // console.log(tree.rootNode.tree);
 
-  console.log("\n");
+  // console.log("\n");
   let node = tree.rootNode;
 
-  console.log(getProofString(node));
+  // console.log(getProofString(node));
+
+  while (node.type !== "expression") {
+    node = node.namedChildren[0];
+  }
+
+  console.log(getExpression(node));
+
+
 }
 
 if (require.main === module) {
